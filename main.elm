@@ -26,24 +26,42 @@ update msg model =
 
 -- PLAYGROUND
 
-card1 = TCard "cartita"
-card2 = TCard "cartonga"
+card1 = TCard "Cartita"
+card2 = TCard "Cartonga"
 
 model : Model
-model = TList "listin" "" [card1, card2]
+model = TList "Listardi" "" [card1, card2]
 
 -- VIEW
 
+--<div class="panel-footer">
+--  <form action="#" method="post">
+--    <div class="form-group">
+--      <textarea class="form-control" placeholder="Add a new card" name="title"></textarea>
+--    </div>
+--    <input type="submit" name="commit" value="Create Card" class="btn btn-default btn-sm"/>
+--  </form>
+--</div>
+
+
 view model =
-  div [] [
-    h2 [] [ text model.name ]
-  , div [] (displayCards model)
-  , div [] (displayForm model)
+  div [ class "panel panel-default" ] [
+    div [ class "panel-body" ] [
+      h3 [ class "panel-title" ] [ text model.name ]
+    ]
+  , ul [ class "list-group" ] (displayCards model)
+  , div [ class "panel-footer" ] [
+      div [ class "form-group" ] [textarea [onInput Name,
+                                            value model.newCard,
+                                            placeholder "card name",
+                                            class "form-control" ] [] ]
+    , button [ onClick Submit, class "btn btn-default btn-sm" ] [ text "Create Card" ]
+    ]
   ]
 
 displayCard : TCard -> Html Msg
 displayCard card =
-  div [] [ text card.description ]
+  li [ class "list-group-item" ] [ text card.description ]
 
 displayCards : Model -> List (Html Msg)
 displayCards list =
