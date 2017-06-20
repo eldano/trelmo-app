@@ -14,7 +14,10 @@ type alias TBoard = { name : String, lists : List TList, increment : Int }
 type alias TList = { uid : Int, name : String, newCard : String, cards : List TCard }
 type alias TCard = { description : String }
 
-type Msg = AddList | AddCard Int | TypeCard Int String
+type Msg = AddList
+         | DeleteList Int
+         | AddCard Int
+         | TypeCard Int String
 
 update : Msg -> TBoard -> TBoard
 update msg board =
@@ -24,6 +27,9 @@ update msg board =
         lists = List.append board.lists [(TList board.increment "NList" "" [])]
       in
         { board | lists = lists, increment = board.increment + 1 }
+
+    DeleteList uid ->
+      { board | lists = List.filter (\n -> n.uid /= uid) board.lists }
 
     TypeCard uid name ->
       let
@@ -90,7 +96,12 @@ displayList list =
 displayTitle : TList -> Html Msg
 displayTitle list =
   div [ class "panel-body" ] [
-    h3 [ class "panel-title" ] [ text list.name ]
+    h3 [ class "panel-title" ] [
+      text list.name
+    , a [ class "delete-btn", onClick (DeleteList list.uid) ] [
+        span [ class "glyphicon glyphicon-remove" ] []
+      ]
+    ]
   ]
 
 displayCard : TCard -> Html Msg
