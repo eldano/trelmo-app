@@ -20,36 +20,12 @@
     </nav>
 
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-xs-12">
-          <h3>Boarding</h3>
-          <hr/>
-
-          <div class="row">
-
-            <div class="col-xs-12 col-sm-3">
-              <div id="list1">Acá va elmo</div>
-            </div>
-
-            <div class="col-xs-12 col-sm-3">
-              <div class="panel panel-default">
-                <a href="#">
-                  <div class="panel-body">
-                    <h3 class="panel-title">Create new list...</h3>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
+      <div id="board" class="row">Acá va Board</div>
     </div>
 
     <script>
-      var node = document.getElementById('list1');
-      var app = Elm.TList.embed(node);
+      var node = document.getElementById('board');
+      var appb = Elm.TList.embed(node);
     </script>
   </body>
 </html>

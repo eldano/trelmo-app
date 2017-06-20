@@ -5,44 +5,71 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
 main = Html.beginnerProgram {
-  model = list1,
+  model = board1,
   view = view,
   update = update
   }
 
-type alias TList = { name : String, newCard : String, cards : List TCard }
+type alias TBoard = { name : String, lists : List TList, increment : Int }
+type alias TList = { uid : Int, name : String, newCard : String, cards : List TCard }
 type alias TCard = { description : String }
 
-type Msg = Submit | Name String
+type Msg = AddList | AddCard Int | TypeCard Int String
 
-update : Msg -> TList -> TList
-update msg list =
+update : Msg -> TBoard -> TBoard
+update msg board =
   case msg of
-    Name name ->
-      { list | newCard = name }
-    Submit ->
-      let newCards = List.append list.cards [TCard list.newCard]
+    AddList -> board
+
+    TypeCard uid name ->
+      let
+        updateEntry list =
+          if list.uid == uid then
+            { list | newCard = name }
+          else
+            list
       in
-        { list | cards = newCards, newCard = "" }
+        { board | lists = List.map updateEntry board.lists }
+
+    AddCard uid ->
+      let
+        updateEntry list =
+          if list.uid == uid then
+            { list | cards = (List.append list.cards [TCard list.newCard]), newCard = "" }
+          else
+            list
+      in
+        { board | lists = List.map updateEntry board.lists }
 
 -- PLAYGROUND
 
-card1 = TCard "Cartita"
-card2 = TCard "Cartonga"
+list1 = TList 1 "Listardi" "" [TCard "Cartita", TCard "Cartonga"]
+list2 = TList 2 "Listox" "" [TCard "Cartucha" ]
 
-list1 : TList
-list1 = TList "Listardi" "" [card1, card2]
+board1 : TBoard
+board1 = TBoard "Boarding" [list1, list2] 3
 
 -- VIEW
 
-view list =
-  div [ class "panel panel-default" ] [
-    displayTitle list
-  , displayCards list
-  , displayForm list
+view : TBoard -> Html Msg
+view board =
+  div [ class "col-xs-12" ] [
+    h3 [] [ text board.name ]
+  , hr [] []
+  , div [ class "row" ] (List.map displayList board.lists)
   ]
 
-displayTitle: TList -> Html Msg
+displayList : TList -> Html Msg
+displayList list =
+  div [ class "col-xs-12 col-sm-3" ] [
+    div [ class "panel panel-default" ] [
+      displayTitle list
+    , displayCards list
+    , displayForm list
+    ]
+  ]
+
+displayTitle : TList -> Html Msg
 displayTitle list =
   div [ class "panel-body" ] [
     h3 [ class "panel-title" ] [ text list.name ]
@@ -60,10 +87,10 @@ displayForm : TList -> Html Msg
 displayForm list =
   div [ class "panel-footer" ] [
     div [ class "form-group" ] [
-      textarea [ onInput Name,
+      textarea [ onInput (TypeCard list.uid),
                  value list.newCard,
                  placeholder "card name",
                  class "form-control" ] []
     ]
-  , button [ onClick Submit, class "btn btn-default btn-sm" ] [ text "Create Card" ]
+  , button [ onClick (AddCard list.uid), class "btn btn-default btn-sm" ] [ text "Create Card" ]
   ]
