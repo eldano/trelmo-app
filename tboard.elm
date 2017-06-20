@@ -19,7 +19,11 @@ type Msg = AddList | AddCard Int | TypeCard Int String
 update : Msg -> TBoard -> TBoard
 update msg board =
   case msg of
-    AddList -> board
+    AddList ->
+      let
+        lists = List.append board.lists [(TList board.increment "NList" "" [])]
+      in
+        { board | lists = lists, increment = board.increment + 1 }
 
     TypeCard uid name ->
       let
@@ -56,7 +60,21 @@ view board =
   div [ class "col-xs-12" ] [
     h3 [] [ text board.name ]
   , hr [] []
-  , div [ class "row" ] (List.map displayList board.lists)
+  , div [ class "row" ]
+      ((List.map displayList board.lists) ++
+      [displayNewList])
+  ]
+
+displayNewList : Html Msg
+displayNewList =
+  div [ class "col-xs-12 col-sm-3" ] [
+    div [ class "panel panel-default" ] [
+      a [ onClick AddList ] [
+        div [ class "panel-body" ] [
+          h3 [ class "panel-title" ] [ text "Create new list..." ]
+        ]
+      ]
+    ]
   ]
 
 displayList : TList -> Html Msg
