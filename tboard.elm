@@ -11,20 +11,42 @@ main = Html.beginnerProgram {
   }
 
 type alias TBoard = { name : String, lists : List TList, increment : Int }
-type alias TList = { uid : Int, name : String, newCard : String, cards : List TCard }
+type alias TList = { uid : Int, name : String, newCard : String, cards : List TCard, isEditing : Bool }
 type alias TCard = { description : String }
 
 type Msg = AddList
          | DeleteList Int
          | AddCard Int
          | TypeCard Int String
+         | EditModeList Int
+         | TypeList Int String
 
 update : Msg -> TBoard -> TBoard
 update msg board =
   case msg of
+    EditModeList uid ->
+      let
+        updateEntry list =
+          if list.uid == uid then
+            { list | isEditing = not list.isEditing }
+          else
+            list
+      in
+        { board | lists = List.map updateEntry board.lists }
+
+    TypeList uid name ->
+      let
+        updateEntry list =
+          if list.uid == uid then
+            { list | name = name }
+          else
+            list
+      in
+        { board | lists = List.map updateEntry board.lists }
+
     AddList ->
       let
-        lists = List.append board.lists [(TList board.increment "NList" "" [])]
+        lists = List.append board.lists [(TList board.increment "NList" "" [] False)]
       in
         { board | lists = lists, increment = board.increment + 1 }
 
@@ -53,8 +75,8 @@ update msg board =
 
 -- PLAYGROUND
 
-list1 = TList 1 "Listardi" "" [TCard "Cartita", TCard "Cartonga"]
-list2 = TList 2 "Listox" "" [TCard "Cartucha" ]
+list1 = TList 1 "Listardi" "" [TCard "Cartita", TCard "Cartonga"] False
+list2 = TList 2 "Listox" "" [TCard "Cartucha" ] False
 
 board1 : TBoard
 board1 = TBoard "Boarding" [list1, list2] 3
@@ -96,12 +118,18 @@ displayList list =
 displayTitle : TList -> Html Msg
 displayTitle list =
   div [ class "panel-body" ] [
-    h3 [ class "panel-title" ] [
-      text list.name
-    , a [ class "delete-btn", onClick (DeleteList list.uid) ] [
-        span [ class "glyphicon glyphicon-remove" ] []
+    if list.isEditing then
+      div [ class "form-inline edit-title" ] [
+        input [ onInput (TypeList list.uid), value list.name, class "form-control" ] []
+      , button [ onClick (EditModeList list.uid), class "btn btn-default btn-sm" ] [ text "OK" ]
       ]
-    ]
+    else
+      h3 [ class "panel-title" ] [
+        span [ onClick (EditModeList list.uid) ] [ text list.name ]
+      , a [ class "delete-btn", onClick (DeleteList list.uid) ] [
+          span [ class "glyphicon glyphicon-remove" ] []
+        ]
+      ]
   ]
 
 displayCard : TCard -> Html Msg

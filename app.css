@@ -2,3 +2,15 @@
   float: right;
   cursor: pointer;
 }
+
+.edit-title {
+}
+
+.edit-title input.form-control {
+  width: 75%;
+}
+
+.edit-title button {
+  width: 22%;
+  margin-left: 3%;
+}
