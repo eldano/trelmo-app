@@ -46,7 +46,7 @@ update msg board =
 
     AddList ->
       let
-        lists = List.append board.lists [(TList board.increment "NList" "" [] False)]
+        lists = List.append board.lists [(TList board.increment "New List" "" [] False)]
       in
         { board | lists = lists, increment = board.increment + 1 }
 
