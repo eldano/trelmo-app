@@ -4,15 +4,29 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
 
-main = Html.beginnerProgram {
-  model = board1,
-  view = view,
-  update = update
+main = Html.program
+  { init = init
+  , view = view
+  , update = update
+  , subscriptions = subscriptions
   }
 
+-- MODEL
+
+type alias Model = TBoard
 type alias TBoard = { name : String, lists : List TList, increment : Int }
 type alias TList = { id : Int, name : String, newCard : String, cards : List TCard, isEditing : Bool }
 type alias TCard = { description : String }
+
+init : (Model, Cmd Msg)
+init =
+  let
+    list1 = TList 1 "Listardi" "" [TCard "Cartita", TCard "Cartonga"] False
+    list2 = TList 2 "Listox" "" [TCard "Cartucha" ] False
+  in
+    (TBoard "Boarding" [list1, list2] 3, Cmd.none)
+
+-- UPDATE
 
 type Msg = AddList
          | DeleteList Int
@@ -21,7 +35,7 @@ type Msg = AddList
          | EditModeList Int
          | TypeList Int String
 
-update : Msg -> TBoard -> TBoard
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg board =
   case msg of
     EditModeList id ->
@@ -32,7 +46,7 @@ update msg board =
           else
             list
       in
-        { board | lists = List.map updateEntry board.lists }
+        ({ board | lists = List.map updateEntry board.lists }, Cmd.none)
 
     TypeList id name ->
       let
@@ -42,16 +56,16 @@ update msg board =
           else
             list
       in
-        { board | lists = List.map updateEntry board.lists }
+        ({ board | lists = List.map updateEntry board.lists }, Cmd.none)
 
     AddList ->
       let
         lists = List.append board.lists [(TList board.increment "New List" "" [] False)]
       in
-        { board | lists = lists, increment = board.increment + 1 }
+        ({ board | lists = lists, increment = board.increment + 1 }, Cmd.none)
 
     DeleteList id ->
-      { board | lists = List.filter (\n -> n.id /= id) board.lists }
+      ({ board | lists = List.filter (\n -> n.id /= id) board.lists }, Cmd.none)
 
     TypeCard id name ->
       let
@@ -61,7 +75,7 @@ update msg board =
           else
             list
       in
-        { board | lists = List.map updateEntry board.lists }
+        ({ board | lists = List.map updateEntry board.lists }, Cmd.none)
 
     AddCard id ->
       let
@@ -71,19 +85,17 @@ update msg board =
           else
             list
       in
-        { board | lists = List.map updateEntry board.lists }
+        ({ board | lists = List.map updateEntry board.lists }, Cmd.none)
 
--- PLAYGROUND
+-- SUBSCRIPTIONS
 
-list1 = TList 1 "Listardi" "" [TCard "Cartita", TCard "Cartonga"] False
-list2 = TList 2 "Listox" "" [TCard "Cartucha" ] False
-
-board1 : TBoard
-board1 = TBoard "Boarding" [list1, list2] 3
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  Sub.none
 
 -- VIEW
 
-view : TBoard -> Html Msg
+view : Model -> Html Msg
 view board =
   div [ class "col-xs-12" ] [
     h3 [] [ text board.name ]
