@@ -11,7 +11,7 @@ main = Html.beginnerProgram {
   }
 
 type alias TBoard = { name : String, lists : List TList, increment : Int }
-type alias TList = { uid : Int, name : String, newCard : String, cards : List TCard, isEditing : Bool }
+type alias TList = { id : Int, name : String, newCard : String, cards : List TCard, isEditing : Bool }
 type alias TCard = { description : String }
 
 type Msg = AddList
@@ -24,20 +24,20 @@ type Msg = AddList
 update : Msg -> TBoard -> TBoard
 update msg board =
   case msg of
-    EditModeList uid ->
+    EditModeList id ->
       let
         updateEntry list =
-          if list.uid == uid then
+          if list.id == id then
             { list | isEditing = not list.isEditing }
           else
             list
       in
         { board | lists = List.map updateEntry board.lists }
 
-    TypeList uid name ->
+    TypeList id name ->
       let
         updateEntry list =
-          if list.uid == uid then
+          if list.id == id then
             { list | name = name }
           else
             list
@@ -50,23 +50,23 @@ update msg board =
       in
         { board | lists = lists, increment = board.increment + 1 }
 
-    DeleteList uid ->
-      { board | lists = List.filter (\n -> n.uid /= uid) board.lists }
+    DeleteList id ->
+      { board | lists = List.filter (\n -> n.id /= id) board.lists }
 
-    TypeCard uid name ->
+    TypeCard id name ->
       let
         updateEntry list =
-          if list.uid == uid then
+          if list.id == id then
             { list | newCard = name }
           else
             list
       in
         { board | lists = List.map updateEntry board.lists }
 
-    AddCard uid ->
+    AddCard id ->
       let
         updateEntry list =
-          if list.uid == uid then
+          if list.id == id then
             { list | cards = (List.append list.cards [TCard list.newCard]), newCard = "" }
           else
             list
@@ -120,13 +120,13 @@ displayTitle list =
   div [ class "panel-body" ] [
     if list.isEditing then
       div [ class "form-inline edit-title" ] [
-        input [ onInput (TypeList list.uid), value list.name, class "form-control" ] []
-      , button [ onClick (EditModeList list.uid), class "btn btn-default btn-sm" ] [ text "OK" ]
+        input [ onInput (TypeList list.id), value list.name, class "form-control" ] []
+      , button [ onClick (EditModeList list.id), class "btn btn-default btn-sm" ] [ text "OK" ]
       ]
     else
       h3 [ class "panel-title" ] [
-        span [ onClick (EditModeList list.uid) ] [ text list.name ]
-      , a [ class "delete-btn", onClick (DeleteList list.uid) ] [
+        span [ onClick (EditModeList list.id) ] [ text list.name ]
+      , a [ class "delete-btn", onClick (DeleteList list.id) ] [
           span [ class "glyphicon glyphicon-remove" ] []
         ]
       ]
@@ -144,10 +144,10 @@ displayForm : TList -> Html Msg
 displayForm list =
   div [ class "panel-footer" ] [
     div [ class "form-group" ] [
-      textarea [ onInput (TypeCard list.uid),
+      textarea [ onInput (TypeCard list.id),
                  value list.newCard,
                  placeholder "card name",
                  class "form-control" ] []
     ]
-  , button [ onClick (AddCard list.uid), class "btn btn-default btn-sm" ] [ text "Create Card" ]
+  , button [ onClick (AddCard list.id), class "btn btn-default btn-sm" ] [ text "Create Card" ]
   ]
