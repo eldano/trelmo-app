@@ -18,7 +18,7 @@ type alias TBoard =
 
 
 type alias TList =
-    { id : Int, name : String, newCard : String, cards : List TCard, isEditing : Bool }
+    { id : Int, name : String, newCard : TCard, cards : List TCard, isEditing : Bool }
 
 
 type alias TCard =
@@ -60,7 +60,7 @@ update msg board =
         AddList ->
             let
                 lists =
-                    List.append board.lists [ (TList board.increment "New List" "" [] False) ]
+                    List.append board.lists [ (TList board.increment "New List" (TCard "") [] False) ]
             in
                 { board | lists = lists, increment = board.increment + 1 }
 
@@ -71,7 +71,7 @@ update msg board =
             let
                 updateEntry list =
                     if list.id == id then
-                        { list | newCard = name }
+                        { list | newCard = TCard name }
                     else
                         list
             in
@@ -81,7 +81,7 @@ update msg board =
             let
                 updateEntry list =
                     if list.id == id then
-                        { list | cards = (List.append list.cards [ TCard list.newCard ]), newCard = "" }
+                        { list | cards = (List.append list.cards [ list.newCard ]), newCard = TCard "" }
                     else
                         list
             in
@@ -93,11 +93,11 @@ update msg board =
 
 
 list1 =
-    TList 1 "Listardi" "" [ TCard "Cartita", TCard "Cartonga" ] False
+    TList 1 "Listardi" (TCard "") [ TCard "Cartita", TCard "Cartonga" ] False
 
 
 list2 =
-    TList 2 "Listox" "" [ TCard "Cartucha" ] False
+    TList 2 "Listox" (TCard "") [ TCard "Cartucha" ] False
 
 
 board1 : TBoard
@@ -179,7 +179,7 @@ displayForm list =
         [ div [ class "form-group" ]
             [ textarea
                 [ onInput (TypeCard list.id)
-                , value list.newCard
+                , value list.newCard.description
                 , placeholder "card name"
                 , class "form-control"
                 ]
