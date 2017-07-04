@@ -6,11 +6,20 @@ import Html.Events exposing (onClick, onInput)
 
 
 main =
-    Html.beginnerProgram
-        { model = board1
+    Html.program
+        { init = init
         , view = view
         , update = update
+        , subscriptions = subscriptions
         }
+
+
+
+-- MODEL
+
+
+type alias Model =
+    TBoard
 
 
 type alias TBoard =
@@ -25,6 +34,22 @@ type alias TCard =
     { description : String }
 
 
+init : ( Model, Cmd Msg )
+init =
+    let
+        list1 =
+            TList 1 "Listardi" (TCard "") [ TCard "Cartita", TCard "Cartonga" ] False
+
+        list2 =
+            TList 2 "Listox" (TCard "") [ TCard "Cartucha" ] False
+    in
+    ( TBoard "Boarding" [ list1, list2 ] 3, Cmd.none )
+
+
+
+-- UPDATE
+
+
 type Msg
     = AddList
     | DeleteList Int
@@ -34,7 +59,7 @@ type Msg
     | TypeList Int String
 
 
-update : Msg -> TBoard -> TBoard
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg board =
     case msg of
         EditModeList id ->
@@ -45,7 +70,7 @@ update msg board =
                     else
                         list
             in
-                { board | lists = List.map updateEntry board.lists }
+            ( { board | lists = List.map updateEntry board.lists }, Cmd.none )
 
         TypeList id name ->
             let
@@ -55,17 +80,17 @@ update msg board =
                     else
                         list
             in
-                { board | lists = List.map updateEntry board.lists }
+            ( { board | lists = List.map updateEntry board.lists }, Cmd.none )
 
         AddList ->
             let
                 lists =
-                    List.append board.lists [ (TList board.increment "New List" (TCard "") [] False) ]
+                    List.append board.lists [ TList board.increment "New List" (TCard "") [] False ]
             in
-                { board | lists = lists, increment = board.increment + 1 }
+            ( { board | lists = lists, increment = board.increment + 1 }, Cmd.none )
 
         DeleteList id ->
-            { board | lists = List.filter (\n -> n.id /= id) board.lists }
+            ( { board | lists = List.filter (\n -> n.id /= id) board.lists }, Cmd.none )
 
         TypeCard id name ->
             let
@@ -75,34 +100,26 @@ update msg board =
                     else
                         list
             in
-                { board | lists = List.map updateEntry board.lists }
+            ( { board | lists = List.map updateEntry board.lists }, Cmd.none )
 
         AddCard id ->
             let
                 updateEntry list =
                     if list.id == id then
-                        { list | cards = (List.append list.cards [ list.newCard ]), newCard = TCard "" }
+                        { list | cards = List.append list.cards [ list.newCard ], newCard = TCard "" }
                     else
                         list
             in
-                { board | lists = List.map updateEntry board.lists }
+            ( { board | lists = List.map updateEntry board.lists }, Cmd.none )
 
 
 
--- PLAYGROUND
+-- SUBSCRIPTIONS
 
 
-list1 =
-    TList 1 "Listardi" (TCard "") [ TCard "Cartita", TCard "Cartonga" ] False
-
-
-list2 =
-    TList 2 "Listox" (TCard "") [ TCard "Cartucha" ] False
-
-
-board1 : TBoard
-board1 =
-    TBoard "Boarding" [ list1, list2 ] 3
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 
@@ -115,7 +132,7 @@ view board =
         [ h3 [] [ text board.name ]
         , hr [] []
         , div [ class "row" ]
-            ((List.map displayList board.lists)
+            (List.map displayList board.lists
                 ++ [ displayNewList ]
             )
         ]
