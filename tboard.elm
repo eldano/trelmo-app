@@ -123,12 +123,10 @@ view board =
 
 displayNewList : Html Msg
 displayNewList =
-    div [ class "col-xs-12 col-sm-3" ]
-        [ div [ class "panel panel-default" ]
-            [ a [ onClick AddList ]
-                [ div [ class "panel-body" ]
-                    [ h3 [ class "panel-title" ] [ text "Create new list..." ]
-                    ]
+    displayBox
+        [ a [ onClick AddList ]
+            [ div [ class "panel-body" ]
+                [ h3 [ class "panel-title" ] [ text "Create new list..." ]
                 ]
             ]
         ]
@@ -136,12 +134,18 @@ displayNewList =
 
 displayList : TList -> Html Msg
 displayList list =
+    displayBox
+        [ displayTitle list
+        , displayCards list
+        , displayForm list
+        ]
+
+
+displayBox : List (Html Msg) -> Html Msg
+displayBox list =
     div [ class "col-xs-12 col-sm-3" ]
         [ div [ class "panel panel-default" ]
-            [ displayTitle list
-            , displayCards list
-            , displayForm list
-            ]
+            list
         ]
 
 
